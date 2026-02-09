@@ -7,7 +7,7 @@
 #' @param attrQual matrix of qualitative attributes 
 #' @param attrQuant matrix of quantitative attributes 
 #' @param weights default NO for binary network or "freq" frequency weights
-#' @return
+#' @return list of outputs
 #' @export
 #' @import DistatisR
 #' @importFrom PERMANOVA DistBinary

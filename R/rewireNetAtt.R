@@ -8,6 +8,7 @@
 #' @param attrQual attributes qualitative 
 #' @param attrQuant attributes quantitative
 #' @param Prewire percentage of perturbation
+#' @param seed to set a seed (default seed 1)
 #'
 #' @return list of network and attributes perturbated
 #' @export
@@ -15,14 +16,14 @@
 #' @examples
 #' 
 #' 
-rewireNetAtt <- function(Network, attrQual, attrQuant, Prewire)
+rewireNetAtt <- function(Network, attrQual, attrQuant, Prewire, seed=1)
 {
   
   attrQual.rew <- attrQual  
   attrQuant.rew <- attrQuant
   BMNet.rew <- Network
   
-  set.seed(100)
+  set.seed(seed)
   for (i in 1:length(attrQual)){
 
       
@@ -31,8 +32,8 @@ rewireNetAtt <- function(Network, attrQual, attrQuant, Prewire)
       # Qualitative
       N1 <- sample(1:length(attrQual[[i]][,1]), ceiling(P))
       N2 <- sample(1:length(attrQual[[i]][,1]), ceiling(P))
-      print(N1)
-      print(N2)
+      # print(N1)
+     # print(N2)
       
       N1.1 <- attrQual[[i]][N1,] 
       N2.1 <- attrQual[[i]][N2,] 
@@ -60,8 +61,8 @@ rewireNetAtt <- function(Network, attrQual, attrQuant, Prewire)
                                                                    loop=FALSE))
     
   }
-  return(list("attrQual" = attrQual.rew,
+  output <- list("attrQual" = attrQual.rew,
               "attrQuant" = attrQuant.rew,
               "BMNet" = BMNet.rew)
-  )
+return(output)
 }
