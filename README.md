@@ -1,6 +1,4 @@
-# networkSci
-
-Network Science Analysis
+# networkSci: Network Science Analysis
 
 For the installation:
 
