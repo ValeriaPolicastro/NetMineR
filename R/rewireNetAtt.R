@@ -4,10 +4,10 @@
 #' @description function to rewire network with attributes quantitative and 
 #' qualitative
 #' 
-#' @param Network network
+#' @param network network
 #' @param attrQual attributes qualitative 
 #' @param attrQuant attributes quantitative
-#' @param Prewire percentage of perturbation
+#' @param pRewire percentage of perturbation
 #' @param seed to set a seed (default seed 1)
 #' @importFrom igraph rewire
 #'
@@ -20,14 +20,14 @@
 #' Qual <- c(rep("M",50),rep("F",50))
 #' Quant <- c(rnorm(50, 2, sd = 0.5), rnorm(50, 10, sd = 0.5))
 #' 
-#' rewireNetAtt(Network=g, attrQual=Qual, attrQuant=Quant, Prewire=0.5 )
+#' rewireNetAtt(network=g, attrQual=Qual, attrQuant=Quant, pRewire=0.5 )
 #' 
-rewireNetAtt <- function(Network, attrQual, attrQuant, Prewire, seed=1)
+rewireNetAtt <- function(network, attrQual, attrQuant, pRewire, seed=1)
 {
   
   set.seed(seed)
 
-      P <- ( Prewire * length(attrQual) )/2
+      P <- ( pRewire * length(attrQual) )/2
       
       # Qualitative
       N1 <- sample(1:length(attrQual), ceiling(P))
@@ -57,7 +57,7 @@ rewireNetAtt <- function(Network, attrQual, attrQuant, Prewire, seed=1)
     
     PNet <- ( Prewire * gsize(Network))/2
     # Network
-    Network <- igraph::rewire(Network, with = keeping_degseq(ceiling(PNet),
+    Network <- igraph::rewire(network, with = keeping_degseq(ceiling(PNet),
                                                                    loop=FALSE))
     
   output <- list("attrQual" = attrQual,

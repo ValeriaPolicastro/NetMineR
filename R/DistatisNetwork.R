@@ -1,9 +1,9 @@
-#### DistatisNetwork Function ###
+#### Comand Function ###
 
-#' DistatisNetwork
+#' comand
 #' 
-#' @description distatis applied on networks with quantitative and qualitative attributes 
-#' @param Adj list of adjacency matrices (same node names in the same order, can not analyse isolated nodes)
+#' @description comand function distatis applied on networks with quantitative and qualitative attributes 
+#' @param adj list of adjacency matrices (same node names in the same order, can not analyse isolated nodes)
 #' @param attrQual matrix of qualitative attributes 
 #' @param attrQuant matrix of quantitative attributes 
 #' @param weights default NO for binary network or "freq" frequency weights
@@ -12,22 +12,29 @@
 #' @import DistatisR
 #' @importFrom PERMANOVA DistBinary
 #'
-#' @examples DistatisNetwork (Adj, attrQual, attrQuant, weights)
+#' @examples 
+#' pm <- cbind(c(.1, .001), c(.001, .1))
+#' g <- sample_sbm(100, pref.matrix = pm, block.sizes = c(50, 50))
+#' Adj <- as_adjacency_matrix(g)
+#' Qual <- c(rep("M",50),rep("F",50))
+#' Quant <- c(rnorm(50, 2, sd = 0.5), rnorm(50, 10, sd = 0.5))
+#' comand(adj=Adj, attrQual=Qual, attrQuant=Quant, weights="NO")
 
-DistatisNetwork <- function(Adj, attrQual, attrQuant, weights="NO"){
+comand <- function(adj, attrQual, attrQuant, weights="NO"){
   
   # i nomi delle righe devono essere allo stesso posto per tutti e 3 
-  # devono avere la stessa dimensione del numero di nodi, eliminare i nodi isolati e quindi il loro record nella matrici attrQual e attrQuant
+  # devono avere la stessa dimensione del numero di nodi, eliminare i nodi
+  # isolati e quindi il loro record nella matrici attrQual e attrQuant
   # inserire controlla nomi nodi (anche ordine)
   # provide with more options for weight
   # controllare l'output del compromesso
   
-  if(length(rownames(Adj[[1]]))>0)
+  if(length(rownames(adj))>0)
   {
-    ind <- combn(seq_len(length(Adj)),2)
+    ind <- combn(seq_len(length(adj)),2)
     for (i in 1:dim(ind)[2])
     {
-      if(any(rownames(Adj[[ind[1,i]]]) != rownames(Adj[[ind[2,i]]])))
+      if(any(rownames(adj[[ind[1,i]]]) != rownames(adj[[ind[2,i]]])))
       {
         stop("Rownames and colnames should be in the same order in all the 
                     adjacency matrices.")
@@ -39,18 +46,18 @@ DistatisNetwork <- function(Adj, attrQual, attrQuant, weights="NO"){
   
   # inserire un avvertimento per i nodi isolati oppure eliminarli già all'interno della funzione
   isolated <- NULL
-  for (i in 1:length(Adj))
+  for (i in 1:length(adj))
   {
-    isol <- which(rowSums(as.array(Adj[[i]]))==0)
+    isol <- which(rowSums(as.array(adj[[i]]))==0)
     isolated <- c(isolated, isol)
   }
   
   if(length(isolated)>0)
   {
     warning("isolated nodes will be removed")
-    for (i in 1:length(Adj))
+    for (i in 1:length(adj))
     {
-      Adj[[i]] <- Adj[[i]][-c(isolated),-c(isolated)]
+      adj[[i]] <- adj[[i]][-c(isolated),-c(isolated)]
     }
     attrQual <- attrQual[-c(isolated),]
     attrQuant <- attrQuant[-c(isolated),]
@@ -59,23 +66,20 @@ DistatisNetwork <- function(Adj, attrQual, attrQuant, weights="NO"){
   
   
   
-  name <- NULL
-  netD <- list()
-  for (i in 1:length(Adj)){
     ### Network - distance matrix ####
     # Weighted Networks
     if(weights=="freq")
     { 
       #Se frequenze: 
-      netD[[i]] <- analogue::distance(Adj[[i]], method = "chi.square")
+      netD <- analogue::distance(adj, method = "chi.square")
       
     }else if (weights=="NO"){
       # Unweighted Networks  
-      netD[[i]] <- PERMANOVA::DistBinary(Adj[[i]], coefficient ="Jaccard", transformation = "1-S")$D
+      netD <- PERMANOVA::DistBinary(adj, coefficient ="Jaccard", transformation = "1-S")$D
     }
     nameI <- paste0("Net",i)
     name <- c(name,nameI)
-  }
+  
   
   ### Qualitative attributes - distance matrix ####
   if(length(attrQual)>0)
