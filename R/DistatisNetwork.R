@@ -2,19 +2,24 @@
 
 #' comand
 #' 
-#' @description comand function to  applied on networks with quantitative and qualitative attributes 
-#' @param graph The graph an igraph object (can not analyse isolated nodes)
-#' @param attrQual matrix of qualitative attributes 
-#' @param attrQuant matrix of quantitative attributes 
+#' @description comand COMmunities in Attributed Network with Distatis network 
+#' with quantitative and qualitative attributes. (Isolated nodes will be removed)
+#' @param adj The adjacency matrix, the nodes should be in the same order for 
+#' all the matrices.
+#' @param attrQual matrix of qualitative attributes, the nodes should be in the
+#'  same order for all the matrices. 
+#' @param attrQuant matrix of quantitative attributes, the nodes should be in the
+#'  same order for all the matrices. 
 #' @param weights default NO for binary network or "freq" frequency weights
 #' @return list of outputs
 #' @export
 #' @import DistatisR
-#' @importFrom PERMANOVA DistBinary
+#' @importFrom PERMANOVA DistBinary 
 #'
 #' @examples 
 #' pm <- cbind(c(.1, .001), c(.001, .1))
 #' g <- sample_sbm(100, pref.matrix = pm, block.sizes = c(50, 50))
+#' Adj <- as_adjacency_matrix(g)
 #' Qual <- c(rep("M",50),rep("F",50))
 #' Quant <- c(rnorm(50, 2, sd = 0.5), rnorm(50, 10, sd = 0.5))
 #' comand(adj=Adj, attrQual=Qual, attrQuant=Quant, weights="NO")
@@ -27,6 +32,7 @@ comand <- function(adj, attrQual, attrQuant, weights="NO"){
   # inserire controlla nomi nodi (anche ordine)
   # provide with more options for weight
   # controllare l'output del compromesso
+  
   
   if(length(rownames(adj))>0)
   {
@@ -47,7 +53,7 @@ comand <- function(adj, attrQual, attrQuant, weights="NO"){
   isolated <- NULL
   for (i in 1:length(adj))
   {
-    isol <- which(rowSums(as.array(adj[[i]]))==0)
+    isol <- which(rowSums(as.array(adj))==0)
     isolated <- c(isolated, isol)
   }
   
@@ -56,7 +62,7 @@ comand <- function(adj, attrQual, attrQuant, weights="NO"){
     warning("isolated nodes will be removed")
     for (i in 1:length(adj))
     {
-      adj[[i]] <- adj[[i]][-c(isolated),-c(isolated)]
+      adj<- adj[-c(isolated),-c(isolated)]
     }
     attrQual <- attrQual[-c(isolated),]
     attrQuant <- attrQuant[-c(isolated),]
