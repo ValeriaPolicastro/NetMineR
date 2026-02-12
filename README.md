@@ -1,5 +1,5 @@
-# networkSci
-### Network Science Analysis
+# NetMineR
+### Network Mine R package
 For the installation:
 
 ```         
