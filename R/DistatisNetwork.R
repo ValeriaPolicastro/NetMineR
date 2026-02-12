@@ -2,8 +2,8 @@
 
 #' comand
 #' 
-#' @description comand function distatis applied on networks with quantitative and qualitative attributes 
-#' @param adj list of adjacency matrices (same node names in the same order, can not analyse isolated nodes)
+#' @description comand function to  applied on networks with quantitative and qualitative attributes 
+#' @param graph The graph an igraph object (can not analyse isolated nodes)
 #' @param attrQual matrix of qualitative attributes 
 #' @param attrQuant matrix of quantitative attributes 
 #' @param weights default NO for binary network or "freq" frequency weights
@@ -15,7 +15,6 @@
 #' @examples 
 #' pm <- cbind(c(.1, .001), c(.001, .1))
 #' g <- sample_sbm(100, pref.matrix = pm, block.sizes = c(50, 50))
-#' Adj <- as_adjacency_matrix(g)
 #' Qual <- c(rep("M",50),rep("F",50))
 #' Quant <- c(rnorm(50, 2, sd = 0.5), rnorm(50, 10, sd = 0.5))
 #' comand(adj=Adj, attrQual=Qual, attrQuant=Quant, weights="NO")
