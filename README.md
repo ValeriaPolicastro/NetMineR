@@ -3,5 +3,5 @@
 For the installation:
 
 ```         
-           devtools::install_github("ValeriaPolicastro/networkSci")
+           devtools::install_github("ValeriaPolicastro/NetMineR")
 ```
