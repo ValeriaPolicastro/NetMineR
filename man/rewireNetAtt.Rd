@@ -4,16 +4,16 @@
 \alias{rewireNetAtt}
 \title{rewireNetAtt}
 \usage{
-rewireNetAtt(Network, attrQual, attrQuant, Prewire, seed = 1)
+rewireNetAtt(network, attrQual, attrQuant, pRewire, seed = 1)
 }
 \arguments{
-\item{Network}{network}
+\item{network}{network}
 
 \item{attrQual}{attributes qualitative}
 
 \item{attrQuant}{attributes quantitative}
 
-\item{Prewire}{percentage of perturbation}
+\item{pRewire}{percentage of perturbation}
 
 \item{seed}{to set a seed (default seed 1)}
 }
@@ -30,6 +30,6 @@ g <- sample_sbm(100, pref.matrix = pm, block.sizes = c(50, 50))
 Qual <- c(rep("M",50),rep("F",50))
 Quant <- c(rnorm(50, 2, sd = 0.5), rnorm(50, 10, sd = 0.5))
 
-rewireNetAtt(Network=g, attrQual=Qual, attrQuant=Quant, Prewire=0.5 )
+rewireNetAtt(network=g, attrQual=Qual, attrQuant=Quant, pRewire=0.5 )
 
 }

@@ -4,7 +4,7 @@
 #' @param graph graph
 #' @param memb membership object
 #'
-#' @returns
+#' @returns list
 #' @export
 #'
 #' @examples
