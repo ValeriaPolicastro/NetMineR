@@ -3,7 +3,7 @@
 #' comand
 #' 
 #' @description comand COMmunities in Attributed Network with Distatis network 
-#' with quantitative and qualitative attributes. (Isolated nodes will be removed)
+#' with both quantitative and qualitative attributes. (Isolated nodes will be removed)
 #' @param adj The adjacency matrix, the nodes should be in the same order for 
 #' all the matrices.
 #' @param attrQual matrix of qualitative attributes, the nodes should be in the
@@ -20,8 +20,8 @@
 #' pm <- cbind(c(.1, .001), c(.001, .1))
 #' g <- sample_sbm(100, pref.matrix = pm, block.sizes = c(50, 50))
 #' Adj <- as_adjacency_matrix(g)
-#' Qual <- c(rep("M",50),rep("F",50))
-#' Quant <- c(rnorm(50, 2, sd = 0.5), rnorm(50, 10, sd = 0.5))
+#' Qual <- as.matrix(cbind(c(rep("M",50),rep("F",50)),c(rep("I",30),rep("II",30),rep("III",40))))
+#' Quant <- as.matrix(c(rnorm(50, 2, sd = 0.5), rnorm(50, 10, sd = 0.5)))
 #' comand(adj=Adj, attrQual=Qual, attrQuant=Quant, weights="NO")
 
 comand <- function(adj, attrQual, attrQuant, weights="NO"){
@@ -82,8 +82,6 @@ comand <- function(adj, attrQual, attrQuant, weights="NO"){
       # Unweighted Networks  
       netD <- PERMANOVA::DistBinary(adj, coefficient ="Jaccard", transformation = "1-S")$D
     }
-    nameI <- paste0("Net",i)
-    name <- c(name,nameI)
   
   
   ### Qualitative attributes - distance matrix ####
