@@ -1,5 +1,5 @@
 
-#' importanceScore
+#' importantNodes
 #'
 #' @param graph graph
 #' @param memb membership object
@@ -10,9 +10,9 @@
 #' @examples
 #' karate <- make_graph("Zachary")
 #' membK <- membership(cluster_walktrap(karate))
-#' importanceScore(graph=karate,memb=membK)
+#' importantNodes(graph=karate,memb=membK)
 
-importanceScore <- function(graph, memb){
+importantNodes <- function(graph, memb){
   
    # risoluzione problema nomi in igraph
     if (length(V(graph)$name)<1)
