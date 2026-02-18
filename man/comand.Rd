@@ -4,32 +4,32 @@
 \alias{comand}
 \title{comand}
 \usage{
-comand(adj, attrQual, attrQuant, weights = "NO")
+comand(adj, attrQual, attrQuant)
 }
 \arguments{
 \item{adj}{The adjacency matrix, the nodes should be in the same order for 
 all the matrices.}
 
-\item{attrQual}{matrix of qualitative attributes, the nodes should be in the
+\item{attrQual}{matrix of qualitative attributes (as factors objects), the nodes should be in the
 same order for all the matrices.}
 
 \item{attrQuant}{matrix of quantitative attributes, the nodes should be in the
 same order for all the matrices.}
-
-\item{weights}{default NO for binary network or "freq" frequency weights}
 }
 \value{
 list of outputs
 }
 \description{
-comand COMmunities in Attributed Network with Distatis network 
+comand COMmunities in Attributed Network with Distatis. Network 
 with both quantitative and qualitative attributes. (Isolated nodes will be removed)
 }
 \examples{
 pm <- cbind(c(.1, .001), c(.001, .1))
-g <- sample_sbm(100, pref.matrix = pm, block.sizes = c(50, 50))
-Adj <- as_adjacency_matrix(g)
-Qual <- as.matrix(cbind(c(rep("M",50),rep("F",50)),c(rep("I",30),rep("II",30),rep("III",40))))
-Quant <- as.matrix(c(rnorm(50, 2, sd = 0.5), rnorm(50, 10, sd = 0.5)))
-comand(adj=Adj, attrQual=Qual, attrQuant=Quant, weights="NO")
+g <- igraph::sample_sbm(100, pref.matrix = pm, block.sizes = c(50, 50))
+Adj <- igraph::as_adjacency_matrix(g)
+Qual <- data.frame(V1=factor(c(rep("M",50),rep("F",50))),
+V2=factor(c(rep("I",30),rep("II",30),rep("III",40))))
+Quant <- data.frame(X1=c(rnorm(50, 2, sd = 0.5),rnorm(50, 10, sd = 0.5)), 
+X2= c(runif(50, 1, 4), runif(50, 3, 6)))
+comand(adj=Adj, attrQual=Qual, attrQuant=Quant)
 }

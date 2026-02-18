@@ -2,29 +2,31 @@
 
 #' comand
 #' 
-#' @description comand COMmunities in Attributed Network with Distatis network 
+#' @description comand COMmunities in Attributed Network with Distatis. Network 
 #' with both quantitative and qualitative attributes. (Isolated nodes will be removed)
 #' @param adj The adjacency matrix, the nodes should be in the same order for 
 #' all the matrices.
-#' @param attrQual matrix of qualitative attributes, the nodes should be in the
+#' @param attrQual matrix of qualitative attributes (as factors objects), the nodes should be in the
 #'  same order for all the matrices. 
 #' @param attrQuant matrix of quantitative attributes, the nodes should be in the
 #'  same order for all the matrices. 
-#' @param weights default NO for binary network or "freq" frequency weights
 #' @return list of outputs
 #' @export
-#' @import DistatisR
-#' @importFrom PERMANOVA DistBinary 
+#' @importFrom PERMANOVA DistBinary
+#' @importFrom stats dist
+#' @importFrom utils combn
 #'
 #' @examples 
 #' pm <- cbind(c(.1, .001), c(.001, .1))
-#' g <- sample_sbm(100, pref.matrix = pm, block.sizes = c(50, 50))
-#' Adj <- as_adjacency_matrix(g)
-#' Qual <- as.matrix(cbind(c(rep("M",50),rep("F",50)),c(rep("I",30),rep("II",30),rep("III",40))))
-#' Quant <- as.matrix(c(rnorm(50, 2, sd = 0.5), rnorm(50, 10, sd = 0.5)))
-#' comand(adj=Adj, attrQual=Qual, attrQuant=Quant, weights="NO")
+#' g <- igraph::sample_sbm(100, pref.matrix = pm, block.sizes = c(50, 50))
+#' Adj <- igraph::as_adjacency_matrix(g)
+#' Qual <- data.frame(V1=factor(c(rep("M",50),rep("F",50))),
+#' V2=factor(c(rep("I",30),rep("II",30),rep("III",40))))
+#' Quant <- data.frame(X1=c(rnorm(50, 2, sd = 0.5),rnorm(50, 10, sd = 0.5)), 
+#' X2= c(runif(50, 1, 4), runif(50, 3, 6)))
+#' comand(adj=Adj, attrQual=Qual, attrQuant=Quant)
 
-comand <- function(adj, attrQual, attrQuant, weights="NO"){
+comand <- function(adj, attrQual, attrQuant){
   
   # i nomi delle righe devono essere allo stesso posto per tutti e 3 
   # devono avere la stessa dimensione del numero di nodi, eliminare i nodi
@@ -36,7 +38,7 @@ comand <- function(adj, attrQual, attrQuant, weights="NO"){
   
   if(length(rownames(adj))>0)
   {
-    ind <- combn(seq_len(length(adj)),2)
+    ind <- utils::combn(seq_len(length(adj)),2)
     for (i in 1:dim(ind)[2])
     {
       if(any(rownames(adj[[ind[1,i]]]) != rownames(adj[[ind[2,i]]])))
@@ -53,32 +55,41 @@ comand <- function(adj, attrQual, attrQuant, weights="NO"){
   isolated <- NULL
   for (i in 1:length(adj))
   {
-    isol <- which(rowSums(as.array(adj))==0)
+    isol <- which(rowSums(as.matrix(adj))==0)
     isolated <- c(isolated, isol)
   }
   
   if(length(isolated)>0)
   {
-    warning("isolated nodes will be removed")
+    warning("isolated nodes will be removed") 
+    
+    # from adj and attributes qualitative and quantitative
+    
     for (i in 1:length(adj))
     {
       adj<- adj[-c(isolated),-c(isolated)]
     }
-    attrQual <- attrQual[-c(isolated),]
-    attrQuant <- attrQuant[-c(isolated),]
+    
+    if(length(attrQual)>0)
+    {
+    attrQual <- attrQual[-c(isolated),]}
+    
+    
+    if(length(attrQuant)>0)
+    {
+    attrQuant <- attrQuant[-c(isolated),]}
   }
   
   
   
-  
-    ### Network - distance matrix ####
+  ### Network - distance matrix ####
     # Weighted Networks
-    if(weights=="freq")
+  if(length(adj[adj!=0 & adj!=1])>0)
     { 
       #Se frequenze: 
-      netD <- analogue::distance(adj, method = "chi.square")
+      netD <- analogue::distance(adj, method = "euclidean")
       
-    }else if (weights=="NO"){
+    }else{
       # Unweighted Networks  
       netD <- PERMANOVA::DistBinary(adj, coefficient ="Jaccard", transformation = "1-S")$D
     }
@@ -93,22 +104,23 @@ comand <- function(adj, attrQual, attrQuant, weights="NO"){
   ### Quantitative attributes - distance matrix ####
   if(length(attrQuant)>0)
   { 
-    attr.quantD <- as.matrix(dist(attrQuant))
+    attr.quantD <- as.matrix(stats::dist(attrQuant))
   }
+  
   
   ### Build array
   if(length(attrQual)>0 & length(attrQuant)>0)
   {
     ### Array 3D  ####
-    array.dist <- cbind(do.call(cbind, netD),attr.qualD,attr.quantD)
+    array.dist <- cbind(netD,attr.qualD,attr.quantD)
     name <- c(name,"Qual","Quant")
   } else if(length(attrQual)>0 ){
     ### Array 3D  ####
-    array.dist <- cbind(do.call(cbind, netD),attr.qualD)
+    array.dist <- cbind(netD,attr.qualD)
     name <- c(name,"Qual")
   } else if(length(attrQuant)>0 ){
     ### Array 3D  ####
-    array.dist <- cbind(do.call(cbind, netD),attr.quantD)
+    array.dist <- cbind( netD ,attr.quantD)
     name <- c(name,"Quant")
   }
   
