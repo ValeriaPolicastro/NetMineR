@@ -107,22 +107,24 @@ comand <- function(adj, attrQual, attrQuant){
     attr.quantD <- as.matrix(stats::dist(attrQuant))
   }
   
+  ######### CAPIRE DA QUI #####
   
   ### Build array
   if(length(attrQual)>0 & length(attrQuant)>0)
   {
     ### Array 3D  ####
-    array.dist <- cbind(netD,attr.qualD,attr.quantD)
+    array.dist <- cbind(do.call(cbind, netD),attr.qualD,attr.quantD)
     name <- c(name,"Qual","Quant")
   } else if(length(attrQual)>0 ){
     ### Array 3D  ####
-    array.dist <- cbind(netD,attr.qualD)
+    array.dist <- cbind(do.call(cbind, netD),attr.qualD)
     name <- c(name,"Qual")
   } else if(length(attrQuant)>0 ){
     ### Array 3D  ####
-    array.dist <- cbind( netD ,attr.quantD)
+    array.dist <- cbind(do.call(cbind, netD),attr.quantD)
     name <- c(name,"Quant")
   }
+  
   
   if (!dim(array.dist)[2]>=3) {
     stop("At least 3 matrices") 
@@ -160,6 +162,10 @@ comand <- function(adj, attrQual, attrQuant){
   
   ### PartialF serve per plottare Net qual e quant nello spazio dei nodi per ogni nodo
   output$PartialF <- Distatis$res4Splus$PartialF
+  
+  
+  
+  # AGGIUNGERE LA PARTE DEL CLUSTERING
   
   
   
