@@ -45,11 +45,13 @@ importantNodes <- function(graph, memb){
       c <- cbind(max_c, max_nodes_closeness, i)
       rownames(c) <- rep("closeness",  dim(c)[1])
       
-      eigen <- eigen_centrality(sg)$vector
-      max_e <- max(eigen)
+      #Seed random si modifica ad ogni esecuzione:
+      set.seed(100)
+       eigen <- eigen_centrality(sg)$vector
+       max_e <- max(eigen)
       max_nodes_eigen <- names(V(sg)[eigen == max_e])
       e <- cbind(max_e, max_nodes_eigen, i)
-      rownames(e) <-rep( "eigen_centrality",  dim(e)[1])
+       rownames(e) <-rep( "eigen_centrality",  dim(e)[1])
       
       
       be <- betweenness(sg)
@@ -77,14 +79,14 @@ importantNodes <- function(graph, memb){
   }
   
   
-   plot <- ggplot(df, aes(x = reorder(Nodes, Value), y = Value, fill = Value)) +
+   plot <- ggplot2::ggplot(df, aes(x = reorder(Nodes, Value), y = Value, fill = Value)) +
     geom_bar(stat = "identity") +
     coord_flip() +
     facet_wrap(~ Community, scales = "free_y") +
     theme_minimal() +
     labs(title = "Communities",
          x = "Nodes",
-         y = "Values") +
+         y = "Value") +
     scale_fill_gradient(low = "lightblue", high = "darkblue") +
     theme(legend.position = "none")
  

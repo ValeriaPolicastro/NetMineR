@@ -10,11 +10,16 @@
 #'  same order for all the matrices. 
 #' @param attrQuant matrix of quantitative attributes, the nodes should be in the
 #'  same order for all the matrices. 
+#' @param methodQuant distance method for quantitative variables (default euclidean 
+#' see dist function stats) 
+#' @param methodQual distance method for qualitative variables (default chi.square 
+#' see distance function analogue)
 #' @return list of outputs
 #' @export
 #' @importFrom PERMANOVA DistBinary
 #' @importFrom stats dist
 #' @importFrom utils combn
+#' @importFrom analogue distance
 #'
 #' @examples 
 #' pm <- cbind(c(.1, .001), c(.001, .1))
@@ -26,7 +31,7 @@
 #' X2= c(runif(50, 1, 4), runif(50, 3, 6)))
 #' comand(adj=Adj, attrQual=Qual, attrQuant=Quant)
 
-comand <- function(adj, attrQual, attrQuant){
+comand <- function(adj, attrQual, attrQuant, methodQuant="euclidean", methodQual="chi.square"){
   
   # i nomi delle righe devono essere allo stesso posto per tutti e 3 
   # devono avere la stessa dimensione del numero di nodi, eliminare i nodi
@@ -52,23 +57,18 @@ comand <- function(adj, attrQual, attrQuant){
   
   
   # inserire un avvertimento per i nodi isolati oppure eliminarli già all'interno della funzione
-  isolated <- NULL
-  for (i in 1:length(adj))
-  {
-    isol <- which(rowSums(as.matrix(adj))==0)
-    isolated <- c(isolated, isol)
-  }
+  
+  #for (i in 1:length(adj)) per estensione multilayer possiamo fare una lista di adj matrix
+  isolated <- which(rowSums(as.matrix(adj))==0)
+
   
   if(length(isolated)>0)
   {
     warning("isolated nodes will be removed") 
     
     # from adj and attributes qualitative and quantitative
+      adj <- adj[-c(isolated),-c(isolated)]
     
-    for (i in 1:length(adj))
-    {
-      adj<- adj[-c(isolated),-c(isolated)]
-    }
     
     if(length(attrQual)>0)
     {
@@ -98,37 +98,41 @@ comand <- function(adj, attrQual, attrQuant){
   ### Qualitative attributes - distance matrix ####
   if(length(attrQual)>0)
   {
-    attr.qualD <- as.matrix(analogue::distance(attrQual, method = "chi.square"))
+    attr.qualD <- as.matrix(analogue::distance(attrQual, method = methodQual))
   }
   
   ### Quantitative attributes - distance matrix ####
   if(length(attrQuant)>0)
   { 
-    attr.quantD <- as.matrix(stats::dist(attrQuant))
+    attr.quantD <- as.matrix(stats::dist(attrQuant, method = methodQuant))
   }
   
-  ######### CAPIRE DA QUI #####
+ 
+  # Per multilayer network (ci vogliono minimo 3 matrici) 
+  # ### Build array
+  # if(length(attrQual)>0 & length(attrQuant)>0)
+  # {
+  #   ### Array 3D  ####
+  #   array.dist <- cbind(do.call(cbind, netD),attr.qualD,attr.quantD)
+  #   name <- c(name,"Qual","Quant")
+  # } else if(length(attrQual)>0 ){
+  #   ### Array 3D  ####
+  #   array.dist <- cbind(do.call(cbind, netD),attr.qualD)
+  #   name <- c(name,"Qual")
+  # } else if(length(attrQuant)>0 ){
+  #   ### Array 3D  ####
+  #   array.dist <- cbind(do.call(cbind, netD),attr.quantD)
+  #   name <- c(name,"Quant")
+  # }
+  # 
   
-  ### Build array
-  if(length(attrQual)>0 & length(attrQuant)>0)
-  {
-    ### Array 3D  ####
-    array.dist <- cbind(do.call(cbind, netD),attr.qualD,attr.quantD)
-    name <- c(name,"Qual","Quant")
-  } else if(length(attrQual)>0 ){
-    ### Array 3D  ####
-    array.dist <- cbind(do.call(cbind, netD),attr.qualD)
-    name <- c(name,"Qual")
-  } else if(length(attrQuant)>0 ){
-    ### Array 3D  ####
-    array.dist <- cbind(do.call(cbind, netD),attr.quantD)
-    name <- c(name,"Quant")
-  }
+  #if (!dim(array.dist)[2]>=3) {
+  #  stop("At least 3 matrices") 
+  #}
   
   
-  if (!dim(array.dist)[2]>=3) {
-    stop("At least 3 matrices") 
-  }
+  array.dist <- cbind(netD,attr.qualD,attr.quantD)
+  name <- c("Net","Qual","Quant")
   
   Array <- array(array.dist,
                  dim=c(dim(attrQual)[1], dim(attrQual)[1], length(name)))
@@ -155,7 +159,8 @@ comand <- function(adj, attrQual, attrQuant){
   
   
   ### Compromise matrix (it is a cross-product)
-  output$compromise <- Distatis$res4Splus$Splus
+  compromise <- Distatis$res4Splus$Splus
+  output$compromise <- compromise
   
   ### Coordinate dei nodi nelle prime 3 dimensioni
   output$F <- Distatis$res4Splus$F
@@ -165,10 +170,22 @@ comand <- function(adj, attrQual, attrQuant){
   
   
   
-  # AGGIUNGERE LA PARTE DEL CLUSTERING
+  # CLUSTERING:
+  ### Recover the compromise distance matrix from the compromise matrix (cross-product)
+  diag_compr <- diag(compromise)
+  diag_compr <- as.matrix(diag_compr)
   
+  one <- matrix(1,nrow = dim(compromise)[1], ncol = 1)
   
+  # Recover the distance matrix from a cross-product matrix (vedi equazione 4 paper Distatis 2005)
+  # D(I × I) = diag(S) %*% t(1) + 1 %*% t(diag(S)) - 2S
+  compr_dist <- diag_compr%*%t(one) + one%*%t(diag_compr) - 2*compromise
   
+  res <- 
+    NbClust::NbClust(diss=as.dist(compr_dist), distance = NULL,min.nc=2, max.nc=20, 
+                 method = "ward.D2", index = c("silhouette"))
+  
+  output$community <- res$Best.partition
   
   return(output)
   
