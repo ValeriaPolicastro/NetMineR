@@ -29,7 +29,7 @@
 #' V2=factor(c(rep("I",30),rep("II",30),rep("III",40))))
 #' Quant <- data.frame(X1=c(rnorm(50, 2, sd = 0.5),rnorm(50, 10, sd = 0.5)), 
 #' X2= c(runif(50, 1, 4), runif(50, 3, 6)))
-#' comandMulti(adj=AdjL, attrQual=Qual, attrQuant=Quant)
+#' comandMulti(adjList=AdjL, attrQual=Qual, attrQuant=Quant)
 
 comandMulti <- function(adjList, attrQual, attrQuant, methodQuant="euclidean", methodQual="chi.square"){
   
@@ -41,54 +41,7 @@ comandMulti <- function(adjList, attrQual, attrQuant, methodQuant="euclidean", m
   # controllare l'output del compromesso
   
   warning("Rownames (nodes) must be identical and in the same order within each matrices.") 
- 
-#   reference_names <- NULL
-#     
-#   for (l in seq_along(adjList)) {
-#       
-#     if(length(rownames(adjList[[l]]))>0)
-#       {
-#       # Extract rownames and colnames
-#       rn <- rownames(adjList[[l]])
-#       cn <- colnames(adjList[[l]])
-#       
-#       # Check that rownames and colnames are the same within each matrix
-#       if (!identical(rn, cn)) {
-#         stop("Rownames and colnames must be identical and in the same order within each adjacency matrix.")
-#       }
-#       
-#       # Store the node order of the first matrix
-#       if (l == 1) {
-#         reference_names <- rn
-#       }
-#       
-#       # Check that all matrices have the same node order
-#       if (!identical(rn, reference_names)) {
-#         stop("Rownames and colnames should be in the same order in all adjacency matrices.")
-#       }
-#     }
-#   }
-#   
-#   
-#   
-# if(length(rownames(Quant))>0)
-#   {
-#   # Extract rownames 
-#   rn <- rownames(Quant)
-#   if (!identical(rn, reference_names)) {
-#     stop("Rownames and colnames should be in the same order in all adjacency matrices.")
-#   }
-#   }
-# 
-#   
-#   if(length(rownames(Qual))>0)
-#   {
-#     rn <- rownames(Qual)
-#     if (!identical(rn, reference_names)) {
-#       stop("Rownames and colnames should be in the same order in all adjacency matrices.")
-#     }
-#   }
-#   
+
 
 # Nodi Isolati:
   isolated <- NULL
@@ -121,73 +74,59 @@ comandMulti <- function(adjList, attrQual, attrQuant, methodQuant="euclidean", m
   
   
   ### Network - distance matrix ####
-  netD <- list()
-  for (l in seq_along(adjList)) {
+netD <- vector("list", length(adjList))
+for (l in seq_along(adjList)) {
     
     # Weighted Networks
   if(length(adjList[[l]][adjList[[l]]!=0 & adjList[[l]]!=1])>0)
-  { 
-  
-    #Se frequenze: 
+  { #Se frequenze: 
     netD[[l]] <- analogue::distance(adjList[[l]], method = "euclidean")
-    }
-  }else{
+    }else{
   
     # Unweighted Networks  
     netD[[l]] <- PERMANOVA::DistBinary(adjList[[l]], coefficient ="Jaccard", transformation = "1-S")$D
-  
   }
   
-  ### Qualitative attributes - distance matrix ####
-  if(length(attrQual)>0)
+} 
+  
+  
+  dist_list <- netD
+  names(dist_list) <- paste0("Net", seq_along(netD))
+  
+  ### Qualitative attributes - distance matrix
+  if (length(attrQual) > 0) {
+    attr.qualD <- as.matrix(
+      analogue::distance(attrQual, method = methodQual)
+    )
+    
+    dist_list <- c(dist_list, list(Qual = attr.qualD))
+  }
+  
+  ### Quantitative attributes - distance matrix
+  if (length(attrQuant) > 0) {
+    attr.quantD <- as.matrix(
+      stats::dist(attrQuant, method = methodQuant)
+    )
+    
+    dist_list <- c(dist_list, list(Quant = attr.quantD))
+  }
+  
+  
+  Array <- simplify2array(dist_list)
+  
+  if(length(rownames(dist_list[[1]]))==0)
   {
-    attr.qualD <- as.matrix(analogue::distance(attrQual, method = methodQual))
+    rownames(dist_list[[1]]) <- seq(1:dim(dist_list[[1]])[1])
+    colnames(dist_list[[1]]) <- seq(1:dim(dist_list[[1]])[2])
   }
   
-  ### Quantitative attributes - distance matrix ####
-  if(length(attrQuant)>0)
-  { 
-    attr.quantD <- as.matrix(stats::dist(attrQuant, method = methodQuant))
-  }
+  dimnames(Array) <- list(
+    rownames(dist_list[[1]]),
+    colnames(dist_list[[1]]),
+    names(dist_list)
+  )
   
-  ###### CONTINUA DA QUI !!!!!!###########
-  # Per multilayer network (ci vogliono minimo 3 matrici) 
-  # ### Build array
-  # if(length(attrQual)>0 & length(attrQuant)>0)
-  # {
-  #   ### Array 3D  ####
-  #   array.dist <- cbind(do.call(cbind, netD),attr.qualD,attr.quantD)
-  #   name <- c(name,"Qual","Quant")
-  # } else if(length(attrQual)>0 ){
-  #   ### Array 3D  ####
-  #   array.dist <- cbind(do.call(cbind, netD),attr.qualD)
-  #   name <- c(name,"Qual")
-  # } else if(length(attrQuant)>0 ){
-  #   ### Array 3D  ####
-  #   array.dist <- cbind(do.call(cbind, netD),attr.quantD)
-  #   name <- c(name,"Quant")
-  # }
-  # 
-  
-  #if (!dim(array.dist)[2]>=3) {
-  #  stop("At least 3 matrices") 
-  #}
 
-  
-  array.dist <- cbind(netD,attr.qualD,attr.quantD)
-  name <- c("Net","Qual","Quant")
-  
-  Array <- array(array.dist,
-                 dim=c(dim(attrQual)[1], dim(attrQual)[1], length(name)))
-  
-  if (length(row.names(attrQual)) > 0){
-    dimnames(Array)[[1]] <- dimnames(Array)[[2]] <- row.names(attrQual)
-  } else {
-    dimnames(Array)[[1]] <- dimnames(Array)[[2]] <- seq(1:dim(attrQual)[1])
-  }
-  
-  dimnames(Array)[[3]] <- name
-  
   output <- NULL
   ## Apply DISTATIS 
   Distatis <- DistatisR::distatis(Array)

@@ -108,28 +108,6 @@ comand <- function(adj, attrQual, attrQuant, methodQuant="euclidean", methodQual
   }
   
  
-  # Per multilayer network (ci vogliono minimo 3 matrici) 
-  # ### Build array
-  # if(length(attrQual)>0 & length(attrQuant)>0)
-  # {
-  #   ### Array 3D  ####
-  #   array.dist <- cbind(do.call(cbind, netD),attr.qualD,attr.quantD)
-  #   name <- c(name,"Qual","Quant")
-  # } else if(length(attrQual)>0 ){
-  #   ### Array 3D  ####
-  #   array.dist <- cbind(do.call(cbind, netD),attr.qualD)
-  #   name <- c(name,"Qual")
-  # } else if(length(attrQuant)>0 ){
-  #   ### Array 3D  ####
-  #   array.dist <- cbind(do.call(cbind, netD),attr.quantD)
-  #   name <- c(name,"Quant")
-  # }
-  # 
-  
-  #if (!dim(array.dist)[2]>=3) {
-  #  stop("At least 3 matrices") 
-  #}
-  
   
   array.dist <- cbind(netD,attr.qualD,attr.quantD)
   name <- c("Net","Qual","Quant")
