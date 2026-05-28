@@ -9,7 +9,8 @@ comand(
   attrQual,
   attrQuant,
   methodQuant = "euclidean",
-  methodQual = "chi.square"
+  methodQual = "chi.square",
+  maxC = 50
 )
 }
 \arguments{
@@ -27,6 +28,8 @@ see dist function stats)}
 
 \item{methodQual}{distance method for qualitative variables (default chi.square 
 see distance function analogue)}
+
+\item{maxC}{maximum number of clusters}
 }
 \value{
 list of outputs
