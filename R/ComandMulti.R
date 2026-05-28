@@ -14,6 +14,7 @@
 #' see dist function stats) 
 #' @param methodQual distance method for qualitative variables (default chi.square 
 #' see distance function analogue)
+#' @param maxC maximum number of clusters
 #' @return list of outputs
 #' @export
 #' @importFrom PERMANOVA DistBinary
@@ -31,7 +32,8 @@
 #' X2= c(runif(50, 1, 4), runif(50, 3, 6)))
 #' comandMulti(adjList=AdjL, attrQual=Qual, attrQuant=Quant)
 
-comandMulti <- function(adjList, attrQual, attrQuant, methodQuant="euclidean", methodQual="chi.square"){
+comandMulti <- function(adjList, attrQual, attrQuant, methodQuant="euclidean", 
+                        methodQual="chi.square", maxC=50){
   
   # i nomi delle righe devono essere allo stesso posto per tutti e 3 
   # devono avere la stessa dimensione del numero di nodi, eliminare i nodi
@@ -164,7 +166,7 @@ for (l in seq_along(adjList)) {
   compr_dist <- diag_compr%*%t(one) + one%*%t(diag_compr) - 2*compromise
   
   res <- 
-    NbClust::NbClust(diss=as.dist(compr_dist), distance = NULL,min.nc=2, max.nc=20, 
+    NbClust::NbClust(diss=as.dist(compr_dist), distance = NULL,min.nc=2, max.nc=maxC, 
                      method = "ward.D2", index = c("silhouette"))
   
   output$community <- res$Best.partition
