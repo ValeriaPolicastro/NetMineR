@@ -14,13 +14,16 @@
 #' see dist function stats) 
 #' @param methodQual distance method for qualitative variables (default chi.square 
 #' see distance function analogue)
-#' @param maxC maximum number of clusters
+#' @param maxC maximum number of clusters (default 20)
 #' @return list of outputs
 #' @export
 #' @importFrom PERMANOVA DistBinary
 #' @importFrom stats dist
 #' @importFrom utils combn
 #' @importFrom analogue distance
+#' @import  DistatisR
+#' @import NbClust
+#' 
 #'
 #' @examples 
 #' pm <- cbind(c(.1, .001), c(.001, .1))
@@ -33,7 +36,7 @@
 #' comand(adj=Adj, attrQual=Qual, attrQuant=Quant)
 
 comand <- function(adj, attrQual, attrQuant, methodQuant="euclidean", 
-                   methodQual="chi.square", maxC=50){
+                   methodQual="chi.square", maxC=20){
   
   # i nomi delle righe devono essere allo stesso posto per tutti e 3 
   # devono avere la stessa dimensione del numero di nodi, eliminare i nodi

@@ -3,6 +3,8 @@
 export(comand)
 export(comandMulti)
 export(rewireNet)
+import(DistatisR)
+import(NbClust)
 import(igraph)
 importFrom(PERMANOVA,DistBinary)
 importFrom(analogue,distance)

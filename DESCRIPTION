@@ -17,7 +17,8 @@ Imports:
     PERMANOVA,
     analogue,
     stats,
-    utils
+    utils,
+    NbClust
 VignetteBuilder: knitr
 Suggests:
     knitr,
