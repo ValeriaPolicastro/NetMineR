@@ -1,6 +1,6 @@
 #### CREMA Function ###
 
-#' crema
+#' CREMA
 #' 
 #' @description comand COMmunities in Attributed Network with Distatis. Network 
 #' with both quantitative and qualitative attributes. (Isolated nodes will be removed)
@@ -30,10 +30,10 @@
 #'
 #' @examples 
 #' data("exampleL_data")
-#' crema(adj=exampleL_data$Adj, attrQual=exampleL_data$Qual,
+#' CREMA(adj=exampleL_data$Adj, attrQual=exampleL_data$Qual,
 #'  attrQuant=exampleL_data$Quant)
 
-crema <- function(adj, attrQual, attrQuant, methodQuant="euclidean", 
+CREMA <- function(adj, attrQual, attrQuant, methodQuant="euclidean", 
                    methodQual="chi.square",minC=2, maxC=20){
   
   # i nomi delle righe devono essere allo stesso posto per tutti e 3 
